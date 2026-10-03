@@ -1,0 +1,15 @@
+{
+  "name": "greenfield",
+  "title": "Greenfield: build the URL shortener v1 from an empty repository",
+  "kind": "greenfield",
+  "baseline": "empty",
+  "requirement": "Build a URL shortener service from scratch. Users shorten a long URL into a short code, optionally choosing a custom alias. Visiting the short link must redirect to the original URL. Provide click analytics per link: total clicks, unique visitors, top referrers and clicks per day. Users can look up and delete their links. The service must be reliable, with health probes, input validation and no personal data stored.",
+  "narrative": "Well-defined requirement decomposed into 7 dependent tasks inserted into the graph at runtime (domain and analytics run in parallel). Injected faults exercise the recovery paths: a transient failure in the architect (bounded retry), a permanent failure in the docs writer (fallback agent), and a compile defect in the service layer (build gate fails → saga rollback of all implementation changes → remediation with feedback → green).",
+  "faults": "solution-architect:transient:1;tech-writer:permanent",
+  "injectDefect": "gf-service",
+  "approvals": [
+    { "nodeId": "design", "kind": "stage-exit", "occurrence": 1, "approved": true, "approver": "architect (scripted)", "comment": "Layering and ADRs accepted. 301 for cacheability is acceptable for v1." },
+    { "nodeId": "release", "kind": "stage-exit", "occurrence": 1, "approved": true, "approver": "release-manager (scripted)", "comment": "Go: checklist green, rollback plan reviewed." }
+  ],
+  "externalEvents": []
+}

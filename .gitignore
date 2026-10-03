@@ -1,0 +1,6 @@
+﻿bin/
+obj/
+.runs/
+TestResults/
+.vs/
+*.user

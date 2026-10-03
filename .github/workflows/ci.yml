@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-test-scenarios:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build (warnings are errors)
+        run: dotnet build --no-restore -c Release
+
+      - name: Unit and integration tests
+        run: dotnet test --no-build -c Release --logger trx --results-directory TestResults
+
+      # End-to-end: each scenario builds and tests generated code inside its own sandbox.
+      - name: Scenario - greenfield
+        run: dotnet run --project src/Agentic.Cli -c Release --no-build -- run greenfield
+
+      - name: Scenario - brownfield
+        run: dotnet run --project src/Agentic.Cli -c Release --no-build -- run brownfield
+
+      - name: Scenario - ambiguous
+        run: dotnet run --project src/Agentic.Cli -c Release --no-build -- run ambiguous
+
+      - name: Reliability metrics and audit verification
+        run: |
+          dotnet run --project src/Agentic.Cli -c Release --no-build -- metrics
+          Get-ChildItem .runs -Directory | ForEach-Object { dotnet run --project src/Agentic.Cli -c Release --no-build -- verify-audit $_.FullName; if ($LASTEXITCODE -ne 0) { exit 1 } }
+        shell: pwsh
+
+      - name: Upload run evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-evidence
+          path: |
+            .runs/**/ENGINEERING_SUMMARY.md
+            .runs/**/audit.jsonl
+            .runs/**/decisions.json
+            .runs/**/metrics.json
+            .runs/metrics-history.jsonl
+            TestResults/**/*.trx
+          if-no-files-found: warn

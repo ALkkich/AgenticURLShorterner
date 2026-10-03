@@ -1,0 +1,23 @@
+{
+  "name": "ambiguous",
+  "title": "Ambiguous: \"make it safer and handle more traffic\" with a mid-run requirement change",
+  "kind": "ambiguous",
+  "baseline": "reference",
+  "baselineVersion": "1.0.0",
+  "requirement": "People are abusing the shortener. Make it safer, make sure it can handle more traffic, and the analytics should be better.",
+  "narrative": "The analyst refuses to guess: vague terms become clarification questions with proposed defaults; the product owner answers one explicitly (30 creates/minute) and accepts the rest as recorded assumptions. Scale and analytics work are explicitly deferred. A host-configuration change (Program.cs) is routed to a tech lead by change-control policy. After the first build the product owner changes the requirement (rate-limit redirects too): only affected nodes go stale, the planner's previous expansion is retracted and its changes compensated, a new plan (graph v+1) is executed, and the earlier clarification is formally superseded.",
+  "approvals": [
+    { "nodeId": "requirements", "kind": "clarification", "occurrence": 1, "approved": true, "approver": "product-owner (scripted)", "answers": { "Q-RATE": "30 per minute" } },
+    { "nodeId": "design", "kind": "stage-exit", "occurrence": 1, "approved": true, "approver": "architect (scripted)", "comment": "Framework rate limiter acceptable; WAF-level limits tracked as follow-up." },
+    { "nodeId": "impl:ab-rate-limit-creation", "kind": "change-set", "occurrence": 1, "approved": true, "approver": "tech-lead (scripted)", "comment": "Program.cs change reviewed: UseRateLimiter placement is correct." }
+  ],
+  "externalEvents": [
+    {
+      "afterNodeId": "build",
+      "artifactKey": "requirements.raw",
+      "content": "People are abusing the shortener. Make it safer, make sure it can handle more traffic, and the analytics should be better. UPDATE from the product owner: scrapers are hammering popular short links, so rate limiting must apply to redirects as well.",
+      "actor": "human:product-owner",
+      "reason": "Requirement changed mid-run: redirect scraping observed in production."
+    }
+  ]
+}

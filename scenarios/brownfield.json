@@ -1,0 +1,15 @@
+{
+  "name": "brownfield",
+  "title": "Brownfield: fix analytics undercount and add link expiration to the existing service",
+  "kind": "brownfield",
+  "baseline": "reference",
+  "baselineVersion": "1.0.0",
+  "requirement": "Bug report from the marketing team: analytics undercount repeat clicks; when the same person opens a short link twice we only see one click. Feature request: links must support an optional expiry time, after which they stop redirecting.",
+  "narrative": "The codebase analyst locates the root cause in source (301 permanent redirects are cached by browsers), maps impacted files, endpoints, data flows and tests (an existing test locks in the 301 behaviour and must change). The architect supersedes ADR-002. The reviewer rejects the first design with feedback, forcing a bounded revision. Tasks touching the same file are ordered and locked; the bug fix runs in parallel with the expiry domain/service work.",
+  "approvals": [
+    { "nodeId": "design", "kind": "stage-exit", "occurrence": 1, "approved": false, "approver": "architect (scripted)", "comment": "Document that 302 + Cache-Control: no-store supersedes ADR-002, and confirm expired links answer 410 rather than 404." },
+    { "nodeId": "design", "kind": "stage-exit", "occurrence": 2, "approved": true, "approver": "architect (scripted)", "comment": "Revision accepted." },
+    { "nodeId": "release", "kind": "stage-exit", "occurrence": 1, "approved": true, "approver": "release-manager (scripted)", "comment": "Go for 1.1.0." }
+  ],
+  "externalEvents": []
+}
